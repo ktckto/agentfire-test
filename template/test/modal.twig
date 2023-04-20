@@ -1,0 +1,55 @@
+{% if user_id>0  %}
+<div id="modal-addMarker" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Marker</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="modal-longitude">Latitude</label>
+                        <input readonly disabled class="form-control"
+                               id="modal-latitude-input"
+                        >
+                    </div>
+                    <div class="col-6">
+                        <label for="modal-longitude">Longitude</label>
+                        <input readonly disabled class="form-control"
+                               id="modal-longitude-input"
+                             >
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="modal-name-input">Name</label>
+                        <input  class="form-control"
+                               id="modal-name-input"
+                        >
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="modal-name-input">Tags</label>
+                        <input  class="form-control"
+                                id="modal-tags-input"
+                        >
+                    </div>
+                </div>
+
+                <p>Are you sure you want to add this marker?.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Add Marker</button>
+                <button
+                        onclick="jQuery('#modal-addMarker').modal('toggle')"
+                        type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

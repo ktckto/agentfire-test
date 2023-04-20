@@ -103,6 +103,22 @@
 
     });
 
+
+    map.on('click',function (e){
+        console.log(e.lngLat);
+        //show modal with lngLat
+        const $latitude=$('#modal-latitude-input');
+        const $longitude=$('#modal-longitude-input');
+        $latitude.val(e.lngLat.lat);
+        $longitude.val(e.lngLat.lng);
+        $('#modal-addMarker').modal('toggle');
+    });
+
+    //activate modal
+        $('#modal-addMarker').modal({
+            keyboard: false
+        });
+
     })
 })(jQuery)
 
