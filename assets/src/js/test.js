@@ -118,6 +118,11 @@
         $('#modal-addMarker').modal({
             keyboard: false
         });
+        //activate select2
+        $('.select2-modal-input').select2({
+            dropdownParent: $('#modal-addMarker'),
+            width:"100%"
+        });
 
     })
 })(jQuery)
