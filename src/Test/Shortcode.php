@@ -16,14 +16,43 @@ use AgentFire\Plugin\Test\Traits\Singleton;
 class Shortcode {
 	use Singleton;
 
+	/**
+	 * Add shortcode, specify callback
+	 */
 	public function __construct() {
-		//register shortcode
 		add_shortcode( 'agentfire_test',[self::class,'render']);
 
 	}
-	//callback
-	public function render($atts,$content,$shortcode_tag){
-		return Template::getInstance()->render( 'main.twig' );
-	}
 
+	/**
+	 * @param $atts
+	 * @param $content
+	 * @param $shortcode_tag
+	 *
+	 * @return string
+	 * @throws Exception\Template
+	 * Shortcode callback
+	 */
+	public function render($atts,$content,$shortcode_tag){
+		$context=[
+			'user_id'=>get_current_user_id(),
+			'tags'=>self::getTags()
+		];
+		return Template::getInstance()->render( 'main.twig',$context );
+	}
+	public function getTags(){
+		$wp_terms=get_terms([
+			'taxonomy'=>'tag',
+		'hide_empty'=>false
+				]
+		);
+		$tags=array_map(function($term){
+			$tag=[
+				'id'=>$term->term_id,
+				'name'=>$term->name,
+			];
+			return $tag;
+		},$wp_terms);
+		return $tags;
+	}
 }

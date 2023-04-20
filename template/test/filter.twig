@@ -1,0 +1,13 @@
+{% if user_id>0 %}
+<label>
+    Show only my markers
+    <input id="filter-own" type="checkbox">
+</label>
+{% endif %}
+<ul id="tags-list">
+    {% for tag in tags %}
+        <li>
+            {{ tag.name }}
+        </li>
+    {% endfor %}
+</ul>

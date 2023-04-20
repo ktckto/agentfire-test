@@ -37,7 +37,8 @@ class Test {
 	public function getJsData(){
 		return [
 			'MAPBOX_API_KEY'=>get_field('metabox_key','options'),
-			'endpointURL'=>get_site_url().'/wp-json/'.Rest::NAMESPACE. Rest::REST_BASE . '/markers'
+			'endpointURL'=>get_site_url().'/wp-json/'.Rest::NAMESPACE. Rest::REST_BASE . '/markers',
+			 'nonce' => wp_create_nonce( 'wp_rest' ),
 		];
 	}
 }

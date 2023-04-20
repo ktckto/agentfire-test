@@ -60,7 +60,9 @@ class Marker {
 	 * @return array
 	 */
 	public function getPosition():array{
-		return ['long'=>$this->getLongitude(),
-			'lat'=>$this->getLatitude()];
+		return [
+			'id'=>$this->id,
+			'longitude'=>$this->getLongitude(),
+			'latitude'=>$this->getLatitude()];
 	}
 }
