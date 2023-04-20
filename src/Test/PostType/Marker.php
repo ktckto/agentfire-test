@@ -1,7 +1,6 @@
 <?php
 declare( strict_types=1 );
 namespace AgentFire\Plugin\Test\PostType;
-use Twig\{Environment, Loader};
 use AgentFire\Plugin\Test\Traits\Singleton;
 
 /**
@@ -13,8 +12,11 @@ class Marker {
 	use Singleton;
 	public function __construct() {
 		add_action('init',[self::class,'markerPostType']);
+        add_action('init',[self::class,'markerTagTaxonomy']);
 		add_action('add_meta_boxes_marker',[self::class,'addMetaBox']);
 		add_action('save_post_marker',[self::class,'savePost']);
+        //add longitude and latitude to JSON response
+        add_filter('rest_prepare_marker',[self::class,'addLongLatToJson'],10,3);
 	}
 
 	//callback
@@ -22,8 +24,6 @@ class Marker {
 		$args = array(
 			'public'       => true,
 			'show_in_rest' => true,
-			//'rest_namespace'=>'markers',
-			//'rest_controller_class' => 'WP_REST_Posts_Controller',
 			'rest_base' => 'markers',
 			'label'        => 'Markers',
 			'supports'=>['title','custom-fields'],
@@ -32,16 +32,24 @@ class Marker {
 		);
 		register_post_type( 'marker', $args );
 	}
+    public function markerTagTaxonomy(){
+        $args=[
+                'label'=>__('Tag',AGENTFIRE_I18N_SLUG),
+                'public'=>true,
+                'show_in_rest'=>true,
+
+        ];
+        register_taxonomy('tag','marker',$args);
+    }
 	public function addMetaBox(){
 		global $wp_meta_boxes;
-		add_meta_box('Coordinates',__("Coordinates"),[self::class,'metaBoxHTML'],
+		add_meta_box('Coordinates',__("Coordinates",AGENTFIRE_I18N_SLUG),[self::class,'metaBoxHTML'],
 			'marker','normal','high');
 	}
 	public function metaBoxHTML(){
 		global $post;
-		$fields=get_post_custom($post->ID);
-		$longitude= $fields["longitude"][0] ?? '';
-		$latitude=$fields["latitude"][0] ?? '';
+        $longitude=self::getLongitude($post->ID);
+		$latitude=self::getLatitude($post->ID);
 		//Todo: Either move html to a template or maybe use ACF?
 		//TODO: Add validation to admin side
 		?>
@@ -63,4 +71,21 @@ class Marker {
 		update_post_meta($post->ID,'longitude',$_POST['longitude']);
 		update_post_meta($post->ID,'latitude',$_POST['latitude']);
 	}
+    public function addLongLatToJson($data,$post,$context){
+        $longitude=self::getLongitude($post->ID);
+        $latitude=self::getLatitude($post->ID);
+        if(($latitude) and ($longitude)){
+
+            $data->data['longitude']=$longitude;
+            $data->data['latitude']=$latitude;
+        }
+        return $data;
+    }
+    public function getLongitude($post_id){
+	    return get_post_meta($post_id,'longitude',true) ?? '';
+    }
+
+    public function getLatitude($post_id){
+	    return get_post_meta($post_id,'latitude',true) ?? '';
+    }
 }

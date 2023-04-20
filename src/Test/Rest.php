@@ -4,6 +4,7 @@ declare( strict_types=1 );
 
 namespace AgentFire\Plugin\Test;
 
+use AgentFire\Plugin\Test\Entities\Marker;
 use AgentFire\Plugin\Test\Traits\Singleton;
 
 use WP_REST_Request;
@@ -50,8 +51,31 @@ class Rest {
 	 * @return WP_REST_Response
 	 */
 	public static function markers( WP_REST_Request $request ) {
+		$response=[
+			'status'=>'ok',
+			'data'=>[]
+		];
+		//if(empty($request)){
+			//get all markers
+			$query=self::queryMarkers();
+			$markerIds=$query->posts;
+			$markers=array_map(function($id){
+				$marker= new Marker($id);
+				$marker->load();
+				return $marker;
+				},$markerIds);
+			$response['data']=$markers;
+		//}
 
-		return new WP_REST_Response( [] );
+		return new WP_REST_Response( [$response] );
+	}
+
+	private static function queryMarkers(){
+		$args=[
+			'post_type'=>'marker',
+			'fields'=>'ids'
+		];
+		return new \WP_Query($args);
 	}
 
 }

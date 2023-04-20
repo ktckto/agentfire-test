@@ -21,7 +21,7 @@ namespace AgentFire\Plugin;
 
 define( 'AGENTFIRE_TEST_VERSION', '1.0.0' );
 define( 'AGENTFIRE_TEST_PATH', plugin_dir_path( __FILE__ ) );
-
+define( 'AGENTFIRE_I18N_SLUG','agentfire_test');
 require AGENTFIRE_TEST_PATH . 'vendor/autoload.php';
 
 Test::getInstance();
