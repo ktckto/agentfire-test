@@ -35,7 +35,7 @@
                 <div class="row">
                     <div class="col-12">
                         <label for="modal-name-input">Tags</label>
-                        <select class="select2-modal-input" multiple="multiple" name="tags[]"  >
+                        <select id="modal-tags" class="select2-modal-input" multiple="multiple" name="tags[]"  >
                             {% for tag in tags %}
                                 <option value="{{  tag.id }}">{{ tag.name }}</option>
                             {% endfor %}
@@ -48,7 +48,7 @@
                 <p>Are you sure you want to add this marker?.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Add Marker</button>
+                <button type="button" id="modal-btn-add" class="btn btn-primary">Add Marker</button>
                 <button
                         onclick="jQuery('#modal-addMarker').modal('toggle')"
                         type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

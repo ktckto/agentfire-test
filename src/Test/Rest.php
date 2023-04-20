@@ -38,14 +38,20 @@ class Rest {
 	public static function registerRoutes() {
 		register_rest_route( self::NAMESPACE, self::REST_BASE . '/markers', [
 			'show_in_index' => false,
-			'methods'       => [ WP_REST_Server::READABLE, WP_REST_Server::CREATABLE ],
+			'methods'       => [ WP_REST_Server::READABLE ],
 			'callback'      => [ self::class, 'markers' ],
 			'args'          => [],
 		] );
 		register_rest_route( self::NAMESPACE, self::REST_BASE . '/getMarkerDateTitle', [
 			'show_in_index' => false,
-			'methods'       => [ WP_REST_Server::READABLE, WP_REST_Server::CREATABLE ],
+			'methods'       => [ WP_REST_Server::READABLE ],
 			'callback'      => [ self::class, 'getMarkerDateTitle' ],
+			'args'          => [],
+		] );
+		register_rest_route( self::NAMESPACE, self::REST_BASE . '/addMarker', [
+			'show_in_index' => false,
+			'methods'       => [ WP_REST_Server::READABLE, WP_REST_Server::CREATABLE ],
+			'callback'      => [ self::class, 'addMarker' ],
 			'args'          => [],
 		] );
 	}
@@ -57,7 +63,7 @@ class Rest {
 	public static function getMarkerDateTitle(WP_REST_Request $request){
 		$marker_id=$request->get_param('id');
 		if(empty($marker_id)){
-			return new WP_REST_Response([]);
+			return new WP_REST_Response([],400);
 		}
 		$title=get_the_title($marker_id);
 		if(empty($title)){
@@ -71,7 +77,7 @@ class Rest {
 			'id'=>$marker_id,
 			'date'=>$date,
 			'title'=>$title
-		]);
+		],200);
 	}
 	/**
 	 * @param WP_REST_Request $request
@@ -86,34 +92,19 @@ class Rest {
 		$user_id=get_current_user_id();
 		if(!empty($user_id)){
 			$response['user_id']=$user_id;
+			$currentUserMarkerIds=[];
+			$currentUserMarkerIds=self::queryMarkers($user_id)->posts;
+
 		}
 
 		$filters=$request->get_param('tags');
 		if(empty($filters)){
 			$filters=[];
 		}
-		if(!empty($filters) and !empty($user_id)){
-
-			$filteredQuery=self::queryMarkers($user_id,$filters);
-		}
-		elseif(!empty($user_id)){
-			$query=self::queryMarkers($user_id,null);
-		}
-		elseif(!empty($filters)){
-			$query=self::queryMarkers(null,$filters);
-		}
-		else {
-			$query=self::queryMarkers();
-		}
-
-
-
 		$query=self::queryMarkers(null,$filters);
 		$markerIds=$query->posts;
-		$currentUserMarkerIds=[];
-		if(!empty($user_id)){
-			$currentUserMarkerIds=self::queryMarkers($user_id)->posts;
-		}
+
+
 		$markers=array_map(function($id) use ( $currentUserMarkerIds,$user_id ) {
 			$marker= new Marker($id);
 			$markerData=$marker->getPosition();
@@ -126,11 +117,37 @@ class Rest {
 			return $markerData;
 			},$markerIds);
 		$response['data']=$markers;
-		//}
 
-		return new WP_REST_Response( [$response] );
+		return new WP_REST_Response( $response,200);
 	}
+	public static function addMarker(WP_REST_Request $request ){
+		$response=[
+			'status'=>'ok',
+			'data'=>[]
+		];
+		if(empty(get_current_user_id())){
+			return new WP_REST_Response( $response,401 );
+		}
+		$new_marker = array(
+			'post_title' => $request->get_param('name') ?? '' ,
+			'post_type' => 'marker',
+			'post_status' => 'publish'
+		);
+		$post_id = wp_insert_post($new_marker);
+		add_post_meta($post_id, 'latitude',  $request->get_param('latitude') ?? '', true);
+		add_post_meta($post_id, 'longitude',  $request->get_param('longitude') ?? '', true);
 
+		// Add terms
+		if(!empty($request->get_param('tags'))) {
+			$terms_ids=[];
+			foreach($request->get_param('tags') as $tag_id){
+				$terms_ids[]=(int)$tag_id;
+			}
+			wp_set_post_terms($post_id,  $terms_ids, 'tag');
+		}
+		$response['post_id']=$post_id;
+		return new WP_REST_Response( $response,200 );
+	}
 	private static function queryMarkers($user_id=null,$filters=null){
 		$args=[
 			'post_type'=>'marker',
@@ -149,5 +166,6 @@ class Rest {
 		}
 		return new \WP_Query($args);
 	}
+
 
 }

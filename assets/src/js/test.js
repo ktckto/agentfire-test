@@ -32,7 +32,7 @@
                     xhr.setRequestHeader ("X-WP-Nonce", settings.nonce);
                 }
             });
-            ajax=ajax[0];
+
             return ajax;
         }
         let createdMarkers=[];
@@ -123,7 +123,33 @@
             dropdownParent: $('#modal-addMarker'),
             width:"100%"
         });
-
+        $('#modal-btn-add').on('click',async function (e){
+            const $latitude=$('#modal-latitude-input');
+            const $longitude=$('#modal-longitude-input');
+            const $name=$('#modal-name-input');
+            const $tags=$('#modal-tags');
+            const data={
+                'latitude':$latitude.val(),
+                'longitude':$longitude.val(),
+                'name':$name.val(),
+                'tags':$tags.val()
+            };
+            await $.ajax(settings.endpointURL+'/addMarker',{
+                type:"POST",
+                data:data,
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader ("X-WP-Nonce", settings.nonce);
+                },
+                success:async function (){
+                    alert("Added marker");
+                    await fetchAndRenderWithFilters();
+                    $('#modal-addMarker').modal('toggle');
+                },
+                error: function() {
+                    alert("Error");
+                }
+            });
+        });
     })
 })(jQuery)
 
