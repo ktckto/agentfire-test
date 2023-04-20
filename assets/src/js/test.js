@@ -22,8 +22,12 @@
             //zoom: 8
         });
 
-        async function getMarkers(){
+        async function getMarkers(tagIdArray){
+
             var ajax = await $.ajax(settings.endpointURL+'/markers',{
+                data:{
+                  "tags":tagIdArray
+                },
                 beforeSend: function(xhr){
                     xhr.setRequestHeader ("X-WP-Nonce", settings.nonce);
                 }
@@ -31,12 +35,15 @@
             ajax=ajax[0];
             return ajax;
         }
-
-//get markers via endpoint
         let createdMarkers=[];
-        data=await getMarkers();
-        if (data.status==="ok"){
-            data.data.map(marker =>{
+        function renderMarkers(data){
+            if (createdMarkers!==null) {
+                for (var i = createdMarkers.length - 1; i >= 0; i--) {
+                    createdMarkers[i].remove();
+                }
+            }
+            const markers = data.data;
+            markers.map(marker =>{
                 let color="blue";
                 if ((typeof data?.user_id !== 'undefined') && (marker?.user_id===data?.user_id)){
                     color="red";
@@ -49,6 +56,16 @@
                     })
                     .addTo(map));
             })
+        }
+
+        async function fetchAndRenderWithFilters(){
+            let filters=[];
+            $('#tags-list input[type=checkbox]:checked').map(function(a,b){filters.push(b.name)});
+            const data=await getMarkers(filters);
+            if (data.status==="ok"){
+                renderMarkers(data);
+            }
+
         }
 
 
@@ -72,8 +89,11 @@
             return ajax;
         }
 
+    await fetchAndRenderWithFilters();
+    $('input.filter-checkbox').on('change',async function(){
+        await fetchAndRenderWithFilters();
 
-
+    });
     })
 })(jQuery)
 

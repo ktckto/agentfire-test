@@ -53,14 +53,14 @@ class Marker {
 		//Todo: Either move html to a template or maybe use ACF?
 		//TODO: Add validation to admin side
 		?>
+        <label for="latitude">
+            Latitude:
+            <input min="-90" max="90" name="latitude" value="<?=$latitude ?>">
+        </label>
+        <br>
 		<label for="longitude">
 			Longitude:
 			<input name="longitude" value="<?=$longitude ?>">
-		</label>
-		<br>
-		<label for="latitude">
-			Latitude:
-			<input name="latitude" value="<?=$latitude ?>">
 		</label>
 
 <?php

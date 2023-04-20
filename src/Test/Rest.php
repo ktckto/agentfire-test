@@ -87,8 +87,28 @@ class Rest {
 		if(!empty($user_id)){
 			$response['user_id']=$user_id;
 		}
-		//get all markers
-		$query=self::queryMarkers();
+
+		$filters=$request->get_param('tags');
+		if(empty($filters)){
+			$filters=[];
+		}
+		if(!empty($filters) and !empty($user_id)){
+
+			$filteredQuery=self::queryMarkers($user_id,$filters);
+		}
+		elseif(!empty($user_id)){
+			$query=self::queryMarkers($user_id,null);
+		}
+		elseif(!empty($filters)){
+			$query=self::queryMarkers(null,$filters);
+		}
+		else {
+			$query=self::queryMarkers();
+		}
+
+
+
+		$query=self::queryMarkers(null,$filters);
 		$markerIds=$query->posts;
 		$currentUserMarkerIds=[];
 		if(!empty($user_id)){
@@ -111,13 +131,21 @@ class Rest {
 		return new WP_REST_Response( [$response] );
 	}
 
-	private static function queryMarkers($user_id=null){
+	private static function queryMarkers($user_id=null,$filters=null){
 		$args=[
 			'post_type'=>'marker',
 			'fields'=>'ids'
 		];
 		if(!empty($user_id)){
 			$args['author__in']=$user_id;
+		}
+		if(!empty($filters)){
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'tag',
+					'field' => 'term_id',
+					'terms' => $filters
+				));
 		}
 		return new \WP_Query($args);
 	}

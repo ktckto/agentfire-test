@@ -39,7 +39,8 @@ class Marker {
 	 */
 	public function getLongitude(): string {
 		if(empty($this->longitude)){
-			$this->longitude=get_post_meta($this->id,'longitude',true) ?? '';
+			$this->longitude=str_replace(',', '.',
+				get_post_meta($this->id,'longitude',true) ?? '');
 		}
 
 		return $this->longitude;
@@ -50,7 +51,8 @@ class Marker {
 	 */
 	public function getLatitude(): string {
 		if(empty($this->latitude)){
-			$this->latitude=get_post_meta($this->id,'latitude',true) ?? '';
+			$this->latitude=str_replace(',', '.',
+				get_post_meta($this->id,'latitude',true) ?? '');
 		}
 		return $this->latitude;
 	}

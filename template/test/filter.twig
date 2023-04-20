@@ -7,7 +7,11 @@
 <ul id="tags-list">
     {% for tag in tags %}
         <li>
-            {{ tag.name }}
+            <label>
+                {{ tag.name }}
+                <input class="filter-checkbox" type="checkbox" name="{{ tag.id }}" checked>
+            </label>
+
         </li>
     {% endfor %}
 </ul>
