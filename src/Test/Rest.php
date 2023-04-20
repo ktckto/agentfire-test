@@ -42,10 +42,10 @@ class Rest {
 			'callback'      => [ self::class, 'markers' ],
 			'args'          => [],
 		] );
-		register_rest_route( self::NAMESPACE, self::REST_BASE . '/getMarkerDate', [
+		register_rest_route( self::NAMESPACE, self::REST_BASE . '/getMarkerDateTitle', [
 			'show_in_index' => false,
 			'methods'       => [ WP_REST_Server::READABLE, WP_REST_Server::CREATABLE ],
-			'callback'      => [ self::class, 'getMarkerDate' ],
+			'callback'      => [ self::class, 'getMarkerDateTitle' ],
 			'args'          => [],
 		] );
 	}
@@ -54,10 +54,14 @@ class Rest {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function getMarkerDate(WP_REST_Request $request){
+	public static function getMarkerDateTitle(WP_REST_Request $request){
 		$marker_id=$request->get_param('id');
 		if(empty($marker_id)){
 			return new WP_REST_Response([]);
+		}
+		$title=get_the_title($marker_id);
+		if(empty($title)){
+			$title="Marker";
 		}
 		$date=get_the_date('dS M Y',$marker_id);
 		if(empty($date)){
@@ -65,7 +69,8 @@ class Rest {
 		}
 		return new WP_REST_Response([
 			'id'=>$marker_id,
-			'date'=>$date
+			'date'=>$date,
+			'title'=>$title
 		]);
 	}
 	/**

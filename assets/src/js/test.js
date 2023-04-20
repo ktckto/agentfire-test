@@ -23,7 +23,7 @@
         });
 
         async function getMarkers(){
-            var ajax = await $.ajax(settings.endpointURL,{
+            var ajax = await $.ajax(settings.endpointURL+'/markers',{
                 beforeSend: function(xhr){
                     xhr.setRequestHeader ("X-WP-Nonce", settings.nonce);
                 }
@@ -43,7 +43,8 @@
                 }
                 createdMarkers.push(new mapboxgl.Marker({ color: color})
                     .setLngLat([marker.longitude,marker.latitude])
-                    .onClick(() => {
+                    .onClick((e) => {
+                        //e.stopPropagation();
                         showPopup([marker.longitude,marker.latitude],marker.id);
                     })
                     .addTo(map));
@@ -53,13 +54,22 @@
 
 
         //Click on marker event
-        function showPopup(longLat,id){
+       async function showPopup(longLat,id){
+            const data=await getMarkerDateTitle(id);
             new mapboxgl.Popup({ offset: [0, -15] })
                 .setLngLat(longLat)
                 .setHTML(
-                    `<h3>${id}</h3><p>${id}</p>`
+                    `<h3>${data.title}</h3><p>Date: ${data.date}, ID: ${data.id}</p>`
                 )
                 .addTo(map);
+        }
+        async function getMarkerDateTitle(id){
+            var ajax = await $.ajax(settings.endpointURL+'/getMarkerDateTitle?id='+id,{
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader ("X-WP-Nonce", settings.nonce);
+                }
+            });
+            return ajax;
         }
 
 
