@@ -43,10 +43,14 @@
                 }
             }
             const markers = data.data;
+            const isOnlyOwn=$('#filter-own').prop('checked');
             markers.map(marker =>{
                 let color="blue";
                 if ((typeof data?.user_id !== 'undefined') && (marker?.user_id===data?.user_id)){
                     color="red";
+                }
+                else if(isOnlyOwn){
+                    return;
                 }
                 createdMarkers.push(new mapboxgl.Marker({ color: color})
                     .setLngLat([marker.longitude,marker.latitude])
@@ -90,10 +94,15 @@
         }
 
     await fetchAndRenderWithFilters();
+    $('input#filter-own').on('change',async function(){
+        await fetchAndRenderWithFilters();
+        });
+
     $('input.filter-checkbox').on('change',async function(){
         await fetchAndRenderWithFilters();
 
     });
+
     })
 })(jQuery)
 
